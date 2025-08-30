@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Public & Admin Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .box { border: 1px solid #ccc; padding: 10px; margin-top: 10px; width: 500px; }
+    .admin { background: #f9f9f9; }
+    button.delete { margin-left: 10px; color: red; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <h2>📝 Public Form (For Everyone)</h2>
+  <form id="publicForm">
+    <input type="text" id="publicMessage" placeholder="Write your message..." required>
+    <button type="submit">Submit</button>
+  </form>
+
+  <h3>📢 Public Messages:</h3>
+  <div id="publicMessages" class="box"></div>
+
+  <hr>
+
+  <h2>🔒 Admin Form (Only for Admin)</h2>
+  <form id="adminForm">
+    <input type="password" id="adminPassword" placeholder="Enter Admin Password" required><br><br>
+    <textarea id="adminMessage" placeholder="Write admin message..." required></textarea><br>
+    <button type="submit">Submit as Admin</button>
+  </form>
+
+  <h3>👑 Admin Messages:</h3>
+  <div id="adminMessages" class="box admin"></div>
+
+  <script>
+    const publicForm = document.getElementById("publicForm");
+    const publicMessages = document.getElementById("publicMessages");
+    const adminForm = document.getElementById("adminForm");
+    const adminMessages = document.getElementById("adminMessages");
+
+    // ✅ Correct Admin Password
+    const correctPassword = "101049";
+
+    // Public form submit
+    publicForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      let msg = document.getElementById("publicMessage").value;
+      addMessage(publicMessages, msg, false);
+      publicForm.reset();
+    });
+
+    // Admin form submit
+    adminForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      let password = document.getElementById("adminPassword").value;
+      let msg = document.getElementById("adminMessage").value;
+
+      if (password === correctPassword) {
+        addMessage(adminMessages, msg, true);
+        adminForm.reset();
+      } else {
+        alert("❌ Wrong Admin Password");
+      }
+    });
+
+    // Function to add message with delete button
+    function addMessage(container, text, isAdmin) {
+      let p = document.createElement("p");
+      p.textContent = (isAdmin ? "✅ " : "👉 ") + text;
+
+      let delBtn = document.createElement("button");
+      delBtn.textContent = "Delete";
+      delBtn.className = "delete";
+      delBtn.onclick = function() {
+        let pass = prompt("Enter Admin Password to delete:");
+        if (pass === correctPassword) {
+          container.removeChild(p);
+        } else {
+          alert("❌ Wrong Password! Cannot delete.");
+        }
+      };
+
+      p.appendChild(delBtn);
+      container.appendChild(p);
+    }
+  </script>
+
+</body>
+      </html>
