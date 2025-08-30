@@ -7,7 +7,10 @@
     body { font-family: Arial, sans-serif; margin: 20px; }
     .box { border: 1px solid #ccc; padding: 10px; margin-top: 10px; width: 500px; }
     .admin { background: #f9f9f9; }
+    .message { margin: 5px 0; padding: 5px; border-bottom: 1px solid #ddd; }
     button.delete { margin-left: 10px; color: red; cursor: pointer; }
+    .refresh-btn { margin-top: 20px; padding: 8px 15px; cursor: pointer; background: #007bff; color: #fff; border: none; border-radius: 5px; }
+    .refresh-btn:hover { background: #0056b3; }
   </style>
 </head>
 <body>
@@ -33,6 +36,9 @@
   <h3>👑 Admin Messages:</h3>
   <div id="adminMessages" class="box admin"></div>
 
+  <!-- ✅ Refresh Button -->
+  <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Page</button>
+
   <script>
     const publicForm = document.getElementById("publicForm");
     const publicMessages = document.getElementById("publicMessages");
@@ -42,10 +48,89 @@
     // ✅ Correct Admin Password
     const correctPassword = "101049";
 
+    // Load saved messages from localStorage
+    let messages = JSON.parse(localStorage.getItem("messages")) || { public: [], admin: [] };
+    renderMessages();
+
     // Public form submit
     publicForm.addEventListener("submit", function(e) {
       e.preventDefault();
       let msg = document.getElementById("publicMessage").value;
+      messages.public.push(msg);
+      saveMessages();
+      renderMessages();
+      publicForm.reset();
+    });
+
+    // Admin form submit
+    adminForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      let password = document.getElementById("adminPassword").value;
+      let msg = document.getElementById("adminMessage").value;
+
+      if (password === correctPassword) {
+        messages.admin.push(msg);
+        saveMessages();
+        renderMessages();
+        adminForm.reset();
+      } else {
+        alert("❌ Wrong Admin Password");
+      }
+    });
+
+    // Save to localStorage
+    function saveMessages() {
+      localStorage.setItem("messages", JSON.stringify(messages));
+    }
+
+    // Render messages
+    function renderMessages() {
+      publicMessages.innerHTML = "";
+      adminMessages.innerHTML = "";
+
+      messages.public.forEach((msg, index) => {
+        addMessage(publicMessages, msg, false, index);
+      });
+
+      messages.admin.forEach((msg, index) => {
+        addMessage(adminMessages, msg, true, index);
+      });
+    }
+
+    // Function to add message with delete button
+    function addMessage(container, text, isAdmin, index) {
+      let div = document.createElement("div");
+      div.className = "message";
+
+      let span = document.createElement("span");
+      span.innerText = (isAdmin ? "✅ " : "👉 ") + text;
+
+      let delBtn = document.createElement("button");
+      delBtn.textContent = "Delete";
+      delBtn.className = "delete";
+      delBtn.onclick = function() {
+        let pass = prompt("Enter Admin Password to delete:");
+        if (pass === correctPassword) {
+          if (isAdmin) {
+            messages.admin.splice(index, 1);
+          } else {
+            messages.public.splice(index, 1);
+          }
+          saveMessages();
+          renderMessages();
+        } else {
+          alert("❌ Wrong Password! Cannot delete.");
+        }
+      };
+
+      div.appendChild(span);
+      div.appendChild(delBtn);
+      container.appendChild(div);
+    }
+  </script>
+
+</body>
+</html>      let msg = document.getElementById("publicMessage").value;
       addMessage(publicMessages, msg, false);
       publicForm.reset();
     });
